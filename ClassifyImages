@@ -54,11 +54,65 @@ class ClassifyImages:
 
         # Make Predictions
         predictions = model.predict(test_images)
-        predictions[0]
+        i = 0
+        plt.figure(figsize = (6, 3))
+        plt.subplot(1, 2, 1)
+        self.plot_image(predictions[i], test_labels[i], test_images[i])
+        plt.subplot(1, 2, 2)
+        self.plot_value_array(predictions[i], test_labels[i])
+
+        # Add the image to a batch where it's the only member. Even though we're using a single image, we need to add it to a list:
+        img = test_images[0]
+        img = (np.expand_dims(img, 0))
+
+        predictions_single = model.predict(img)
+        self.plot_value_array(predictions_single[0], test_labels[0])
+        _ = plt.xticks(range(10), self.class_names, rotation = 45)
 
         # show can only be called once. If stops the execution of the code, until the figure is closed.
-        # plt.show()
+        plt.show()
+
+    def plot_image(self, prediction_array, true_label, img):
+        plt.grid(False)
+        plt.xticks([])
+        plt.yticks([])
+        plt.imshow(img, cmap = plt.cm.binary)
+
+        predicted_label = np.argmax(prediction_array)
+
+        if predicted_label == true_label:
+            color = "blue"
+        else:
+            color = "red"
+
+        plt.xlabel("{} {:2.0f}% ({})"
+                   .format(self.class_names[predicted_label],
+                           100 * np.max(prediction_array),
+                           self.class_names[true_label],
+                           color = color)
+                   )
+
+    def plot_value_array(self, prediction_array, true_label):
+        plt.grid(False)
+        plt.xticks(range(10))
+        # In case we want to delete the number in the y
+        plt.yticks([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+        this_plot = plt.bar(range(10),
+                            prediction_array * 100,
+                            color = "#777777")
+        plt.ylim([0, 100])
+        predicted_label = np.argmax(prediction_array)
+
+        this_plot[predicted_label].set_color('red')
+        this_plot[true_label].set_color('blue')
 
 
 if __name__ == "__main__":
     ClassifyImages().main()
+
+    # plt.figure(figsize = (6, 3))
+    # plt.subplot(1, 2, 1)
+    # ClassifyImages().plot_image(predictions[i], test_labels[i], test_images[i])
+    # plt.subplot(1, 2, 2)
+    # ClassifyImages().plot_value_array(predictions[i], test_labels[i])
+    # plt.show()
